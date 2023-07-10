@@ -1,16 +1,58 @@
-from tqdm import tqdm
-from pathlib import Path
 import scrapy
+from msspider.items import ExpItem
+import msspider.utils as utils
+import msspider.pipelines as pl
 
 
 class ExpSpider(scrapy.Spider):
-    tag = "Stats"
-    name = "Exp"
+    ID = "EXP"
+    Folder = "Stat"
+    name = "ExpSpider"
+    allowed_domains = utils.Allowed_Domains
+    start_urls = [utils.Link_Compile(ID)]
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "msspider.pipelines.ExpPipeline": 200,
+            "msspider.pipelines.ExportPipeline": 800,
+        }
+    }
 
-    def start_requests(self):
-        urls = []
-        for url in urls:
-            yield scrapy.Request(url=url, callback=self.parse)
+    def parse(self, response):
+        Tables = response.css(".wikitable.prettytable")
+        for i, table in enumerate(Tables):
+            for e in self.formatTable(table):
+                yield e
+
+    def formatTable(self, t):
+        CurrentHeader = (
+            t.xpath(".//preceding-sibling::h2").css(".mw-headline ::text").getall()[-1]
+        )
+        for e in t.css("tr")[1:]:
+            ExpEntry = ExpItem()
+            row = e.css("td ::text").getall()
+            ExpEntry["Category"] = CurrentHeader
+            ExpEntry["Level"] = row[0]
+            ExpEntry["TotalExp"] = row[1]
+            ExpEntry["ExpGap"] = row[2]
+            ExpEntry["Multiplier"] = row[3]
+            ExpEntry["Path"] = (
+                "./TempData/"
+                + self.Folder
+                + "/"
+                + utils.RemoveString(CurrentHeader, " ")
+                + ".json"
+            )
+            yield ExpEntry
+
+    ...
+
+
+class StarforceSpider(scrapy.Spider):
+    ID = "Starforce"
+    Folder = "Stat"
+    name = "SFSpider"
+
+    start_urls = [utils.Link_Compile(ID)]
 
     def parse(self, response):
         ...
