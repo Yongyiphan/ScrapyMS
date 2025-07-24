@@ -8,7 +8,7 @@ from scrapy.crawler import CrawlerRunner
 
 # Custom Includes
 from msspider.spiders import StatSpider
-import msspider.utils as utils
+import utils as utils
 
 
 def Run(path):
@@ -18,6 +18,7 @@ def Run(path):
     if not os.path.exists(DataTempPath):
         os.mkdir(DataTempPath)
         print("Created Temp Data Folder")
+
     for cat in utils.Data_Categories:
         tPath = os.path.join(DataTempPath, cat)
         if not os.path.exists(tPath):

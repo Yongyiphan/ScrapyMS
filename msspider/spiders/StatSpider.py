@@ -1,7 +1,8 @@
 import scrapy
 from msspider.items import ExpItem
-import msspider.utils as utils
+import utils
 import msspider.pipelines as pl
+
 
 
 class ExpSpider(scrapy.Spider):
